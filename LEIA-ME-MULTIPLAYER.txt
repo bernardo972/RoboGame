@@ -1,0 +1,56 @@
+ROBOT ARENA — COMO JOGAR MULTIPLAYER
+=====================================
+
+JEITO PADRÃO: ONLINE, SÓ ABRINDO O index.html
+----------------------------------------------
+Não precisa de terminal, servidor nem localhost.
+
+1. Cada jogador abre o index.html no navegador (Chrome, Edge ou Firefox) e vai em MULTIPLAYER.
+2. Um jogador escolhe o modo e toca em CRIAR SALA. Aparece um código de 5 letras (ex: K7P2Q).
+3. Ele toca em COPIAR CONVITE (ou COMPARTILHAR, no celular) e manda o código para o amigo.
+4. O amigo digita o código em "ENTRAR NA SALA DE UM AMIGO" e toca em ENTRAR.
+5. O amigo marca ESTOU PRONTO. O anfitrião toca em INICIAR e a partida começa em tempo real.
+
+Modos: 1 contra 1, 2 contra 2, Todos contra todos (até 8) e Equipes (até 8).
+
+
+COMO FUNCIONA (E LIMITES)
+-------------------------
+Um arquivo HTML sozinho não consegue ser um servidor. Por isso o jogo usa WebRTC, a
+tecnologia de chamadas de vídeo dos navegadores, através da biblioteca PeerJS:
+
+ - O serviço público e gratuito do PeerJS (0.peerjs.com) só "apresenta" os dois navegadores
+   pelo código da sala. Depois disso, os dados da partida vão direto de um jogador para o outro.
+ - O anfitrião (quem criou a sala) roda a sala e a simulação da partida no próprio navegador
+   e envia o estado do jogo cerca de 20 vezes por segundo; os outros enviam seus comandos.
+ - Nada é simulado nem salvo em LocalStorage para fingir conexão: é uma conexão real.
+
+Requisitos e limitações:
+ - Todos os jogadores precisam de internet (para baixar o módulo PeerJS e se encontrar).
+ - O anfitrião deve manter a aba do jogo aberta durante a partida. Se ele sair, a sala acaba.
+ - Algumas redes muito restritas (firewall de empresa ou escola) bloqueiam conexões diretas.
+   O jogo tenta servidores de retransmissão (TURN) públicos; se ainda assim falhar, use outra
+   rede ou o servidor próprio abaixo.
+ - O serviço gratuito do PeerJS é mantido por terceiros. Se ele estiver fora do ar, a criação
+   de salas mostra uma mensagem de erro; tente de novo mais tarde ou use o servidor próprio.
+ - Salas online são privadas (entra quem tiver o código). A lista de salas públicas existe
+   apenas no modo servidor próprio.
+
+
+OPCIONAL: SERVIDOR PRÓPRIO (REDE LOCAL SEM INTERNET)
+----------------------------------------------------
+Em MULTIPLAYER > "SERVIDOR PRÓPRIO (AVANÇADO)" dá para conectar a um servidor rodando na
+sua rede. Use isso apenas se quiser jogar sem internet ou com salas públicas.
+
+Windows, sem instalar nada (servidor.ps1):
+ 1. Botão direito em servidor.ps1 > "Executar com PowerShell"
+    (ou: powershell -ExecutionPolicy Bypass -File servidor.ps1)
+ 2. Para outros computadores da rede: rode uma vez como administrador
+       netsh http add urlacl url=http://+:8080/ user=Todos      (Windows em inglês: user=Everyone)
+    libere a porta TCP 8080 no Firewall e inicie com:  servidor.ps1 -Rede
+ 3. Todos abrem http://IP-DO-SERVIDOR:8080 (o jogo conecta sozinho) ou informam
+    ws://IP-DO-SERVIDOR:8080 no campo do servidor próprio.
+
+Node.js (server.js):
+ 1. Instale o Node.js 18+ e rode na pasta do jogo:  node server.js   (porta: PORT=3000 node server.js)
+ 2. Informe ws://IP-DA-MÁQUINA:8080 no campo do servidor próprio, ou abra http://IP:8080.
